@@ -1,9 +1,7 @@
-package com.gae.cns.ase;
+package com.gae.ase.action;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.util.Calendar;
-import java.util.logging.Logger;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.AddressException;
@@ -12,6 +10,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import com.gae.ase.bean.UserBean;
 
 @SuppressWarnings("serial")
 public class Controller extends HttpServlet {
@@ -22,7 +22,7 @@ public class Controller extends HttpServlet {
 	 */
 	public Controller() {
 		super();
-		auction = new DerbyDAOImpl();
+		auction = new UserDaoImpl();
 	}
 
 	/**
@@ -35,10 +35,8 @@ public class Controller extends HttpServlet {
 		try {
 			processRequest(request, response);
 		} catch (AddressException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
@@ -53,10 +51,8 @@ public class Controller extends HttpServlet {
 		try {
 			processRequest(request, response);
 		} catch (AddressException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (MessagingException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
@@ -66,26 +62,26 @@ public class Controller extends HttpServlet {
 			HttpServletResponse response) throws ServletException, IOException,
 			AddressException, MessagingException {
 		String action = request.getParameter("action");
-		String forwardPage = "/html/error.jsp";
+		String forwardPage = "error.jsp";
 		
 		if (action.equals("login")) {
 			String userName = request.getParameter("username");
 			String password = request.getParameter("password");
 			request.setAttribute("usern", userName);
-//			forwardPage = processLogin(request, response, userName, password);
+			forwardPage = processLogin(request, response, userName, password);
 		} else if (action.equals("Go Back to Login")) {
-			forwardPage = "/html/login.jsp";
+			forwardPage = "login.jsp";
 		} else if (action.equals("register")) {
-			forwardPage = "/html/register1.jsp";
+			forwardPage = "register1.jsp";
 		} else if (action.equals("logout")) {
-			forwardPage = "/html/enough.jsp";
+			forwardPage = "enough.jsp";
 		} else if (action.equals("register1")) {
 			String userName = request.getParameter("Rusername");
 			String password = request.getParameter("Rpassword");
 			String email = request.getParameter("Remail");
 
 			forwardPage = processRegister(userName, password, email);
-			if (forwardPage.equals("/html/register2.jsp")) {
+			if (forwardPage.equals("register2.jsp")) {
 				request.setAttribute("uName", userName);
 				request.setAttribute("eMail", email);
 				request.setAttribute("pass", password);
@@ -107,7 +103,7 @@ public class Controller extends HttpServlet {
 					n, f, l, y, a, c);
 
 		} else if (action.equals("registrationCompleted")) {
-			forwardPage = "/html/registrationCompleted.jsp";
+			forwardPage = "registrationCompleted.jsp";
 		
 
 		} else if (action.equals("backToHome")) {
@@ -119,12 +115,48 @@ public class Controller extends HttpServlet {
 			if (adminName.equals("yunus") && adminPass.equals("pass")) {
 				forwardPage = "/WEB-INF/restricted/adminHome.jsp";
 			} else {
-				forwardPage = "/html/login.jsp";
+				forwardPage = "login.jsp";
 			}
 		}
 		RequestDispatcher dispatcher = getServletContext()
-				.getRequestDispatcher("/" + forwardPage);
+				.getRequestDispatcher("/html/" + forwardPage);
 		dispatcher.forward(request, response);
+	}
+
+	private String processLogin(HttpServletRequest request, HttpServletResponse response, String userName,
+			String password) {
+		if (userName.equals("") || password.equals("")) {
+			return "loginError.jsp";
+		} {
+			try {
+				UserDTO user = auction.getUserDetails(userName);
+				if (user != null) {
+					if (user.getUsername().equals(userName)
+							&& user.getPassword().equals(password)) {
+						UserBean userBeann = (UserBean) request.getSession()
+								.getAttribute("userBean");
+						userBeann.setUsernameBean(user.getUsername());
+						userBeann.setPasswordBean(user.getPassword());
+						userBeann.setEmailBean(user.getEmailadd());
+						userBeann.setNicknameBean(user.getNickname());
+						userBeann.setFirstnameBean(user.getFirstname());
+						userBeann.setLastnameBean(user.getLastname());
+						userBeann.setYobBean(user.getYearofbirth());
+						userBeann.setFulladdBean(user.getFulladdress());
+						userBeann.setCreditcardnumbBean(user
+								.getCreditcardnumber());
+						return "home.jsp";
+					} else {
+						return "loginError.jsp";
+					}
+				} else {
+					return "loginError.jsp";
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+				return "loginError.jsp";
+			}
+		}
 	}
 
 	public static boolean isItInt(String str) {
@@ -145,7 +177,7 @@ public class Controller extends HttpServlet {
 			System.out.println("val = " + val);
 			UserDTO user = new UserDTO(u, p, emailAdd, n, f, l, y, a, c);
 			auction.storeUserTemp(user);
-			page = "checkMail.jsp";
+			page = "login.jsp";
 			System.out.println("Success");
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -157,11 +189,11 @@ public class Controller extends HttpServlet {
 	private String processRegister(String userName, String password,
 			String email) {
 		if (userName.equals("") || password.equals("") || email.equals("")) {
-			return "/html/error.jsp";
+			return "error.jsp";
 		} else if (!email.contains("@")) {
 			return "error.jsp";
 		} else {
-			return "/html/register2.jsp";
+			return "register2.jsp";
 		}
 	}
 

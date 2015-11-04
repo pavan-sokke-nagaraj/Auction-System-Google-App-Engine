@@ -1,4 +1,4 @@
-package com.gae.cns.ase;
+package com.gae.ase.action;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -30,10 +30,15 @@ public class DBConnectionFactory {
 				// Load the class that provides the new "jdbc:google:mysql://"
 				// prefix.
 				Class.forName("com.mysql.jdbc.GoogleDriver");
-				url = "jdbc:google:mysql://auctionsystem-27608144:clouddb/Auction_System?user=pavan";
+				url = "jdbc:google:mysql://auctionsystem-27608144:clouddb/Auction_System";
 			} else {
 				// Local MySQL instance to use during development.
-				Class.forName("com.mysql.jdbc.Driver");
+				try {
+					Class.forName("com.mysql.jdbc.Driver");
+				} catch (ClassNotFoundException e) {
+					e.printStackTrace();
+				}
+
 				url = "jdbc:mysql://173.194.226.157:3306/Auction_System?user=pavan";
 
 				// Alternatively, connect to a Google Cloud SQL instance using:
@@ -55,29 +60,12 @@ public class DBConnectionFactory {
 			factory = new DBConnectionFactory();
 		Connection conn = null;
 		try {
-			conn = DriverManager.getConnection(factory.getUrl());
+			conn = DriverManager.getConnection(factory.getUrl(), "pavan", "pavan");
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-
 		return conn;
-	}
-	
-	public static void main(String args){
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		String iUrl = "jdbc:mysql://173.194.226.157:3306/Auction_System?user=pavan";
-		try {
-			Connection conn = DriverManager.getConnection(iUrl);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 
 }

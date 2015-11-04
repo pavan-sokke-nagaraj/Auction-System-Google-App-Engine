@@ -1,4 +1,4 @@
-package com.gae.cns.ase;
+package com.gae.ase.action;
 
 public class BidDTO {
 	private String userName;

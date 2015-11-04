@@ -1,4 +1,4 @@
-package com.gae.cns.ase;
+package com.gae.ase.action;
 
 import java.io.IOException;
 

@@ -1,4 +1,4 @@
-package com.gae.cns.ase;
+package com.gae.ase.action;
 
 public class ItemDTO {
 	private String userName;
